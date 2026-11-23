@@ -21,18 +21,22 @@ public class AppointmentScheduler {
      * just the adjacent appointments. Return true only if added.
      */
     public boolean book(Appointment requested) {
-        if(requested.getStartMinutes() < 8*60 || requested.getStartMinutes()+requested.getDurationMinutes() > 17*60) {
+        if(requested.getStartMinutes() < OPEN_MINUTES || requested.getStartMinutes()+requested.getDurationMinutes() > CLOSE_MINUTES) {
             return false;
         }
         
         Appointment floored = schedule.floor(requested);
-        if(requested.getStartMinutes() >= floored.getStartMinutes() && requested.getStartMinutes() < floored.getStartMinutes()+floored.getDurationMinutes()) {
-            return false;
+        if(floored != null) {
+            if(requested.getStartMinutes() >= floored.getStartMinutes() && requested.getStartMinutes() < floored.getStartMinutes()+floored.getDurationMinutes()) {
+                return false;
+            }
         }
 
         Appointment ceilinged = schedule.ceiling(requested);
-        if(requested.getStartMinutes()+requested.getDurationMinutes() > ceilinged.getStartMinutes()) {
-            return false;
+        if(ceilinged != null) {
+            if(requested.getStartMinutes()+requested.getDurationMinutes() > ceilinged.getStartMinutes()) {
+                return false;
+            }
         }
 
         schedule.add(requested);
@@ -59,7 +63,7 @@ public class AppointmentScheduler {
     }
 
     public void write(PrintWriter out) {
-        out.println("FILE_HEADER");
+        out.println(FILE_HEADER);
         for(Appointment a : schedule) {
             out.println(a.toFileLine());
         }
